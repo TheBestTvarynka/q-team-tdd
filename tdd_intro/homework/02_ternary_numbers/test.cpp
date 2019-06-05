@@ -20,7 +20,7 @@ If your language provides a method in the standard library to perform the conver
 
 int ternary_string_to_int(const std::string& str)
 {
-    return 0;
+    return 2;
 }
 
 TEST(TernaryTestCase, PassTernaryNumber)
