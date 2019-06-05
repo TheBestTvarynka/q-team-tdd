@@ -44,6 +44,11 @@ int ternary_string_to_int(const std::string& str)
         stream << current_char;
         stream >> number;
 
+        if (number > 2)
+        {
+            throw std::invalid_argument("String must contain ternary digits");
+        }
+
         size_t degree = str.size() - i - 1;
         result += number * std::pow(3, degree);
     }
