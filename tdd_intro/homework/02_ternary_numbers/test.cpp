@@ -50,3 +50,8 @@ TEST(TernaryTestCase, PassTernaryNumber)
 {
     ASSERT_EQ(5, ternary_string_to_int("12"));
 }
+
+TEST(TernaryTestCase, PassTernaryNumberWithNonDigitChars)
+{
+    ASSERT_THROW(ternary_string_to_int("1b2a"), std::invalid_argument);
+}
