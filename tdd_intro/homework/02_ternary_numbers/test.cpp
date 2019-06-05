@@ -25,7 +25,7 @@ int ternary_string_to_int(const std::string& str)
 {
     int result = 0;
 
-    for (int i = 0; i < str.size(); ++i)
+    for (size_t i = 0; i < str.size(); ++i)
     {
         int number = 0;
 
@@ -34,7 +34,7 @@ int ternary_string_to_int(const std::string& str)
         stream >> number;
 
 
-        int degree = str.size() - i - 1;
+        size_t degree = str.size() - i - 1;
         result += number * std::pow(3, degree);
     }
 
