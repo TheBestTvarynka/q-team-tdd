@@ -66,6 +66,11 @@ TEST(TernaryTestCase, PassTernaryNumberWithNonDigitChars)
     ASSERT_THROW(ternary_string_to_int("1b2a"), std::invalid_argument);
 }
 
+TEST(TernaryTestCase, PassNonTernaryDigits)
+{
+    ASSERT_THROW(ternary_string_to_int("1426"), std::invalid_argument);
+}
+
 TEST(TernaryTestCase, PassEmptyString)
 {
     ASSERT_THROW(ternary_string_to_int(""), std::invalid_argument);
