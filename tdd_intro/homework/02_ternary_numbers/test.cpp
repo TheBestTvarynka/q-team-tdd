@@ -22,7 +22,7 @@ If your language provides a method in the standard library to perform the conver
 */
 
 int ternary_string_to_int(const std::string& str)
-{    
+{
     int result = 0;
 
     for (size_t i = 0; i < str.size(); ++i)
@@ -59,4 +59,9 @@ TEST(TernaryTestCase, PassTernaryNumber)
 TEST(TernaryTestCase, PassTernaryNumberWithNonDigitChars)
 {
     ASSERT_THROW(ternary_string_to_int("1b2a"), std::invalid_argument);
+}
+
+TEST(TernaryTestCase, PassEmptyString)
+{
+    ASSERT_THROW(ternary_string_to_int(""), std::invalid_argument);
 }
