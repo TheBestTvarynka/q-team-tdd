@@ -21,11 +21,19 @@ The last place in a ternary number is the 1's place. The second to last is the 3
 If your language provides a method in the standard library to perform the conversion, pretend it doesn't exist and implement it yourself.
 */
 
-int ternary_string_to_int(const std::string& str)
+// Pass by value, I need a copy
+int ternary_string_to_int(std::string str)
 {
     if (str.empty())
     {
         throw std::invalid_argument("String must have value");
+    }
+
+    auto negative = false;
+
+    if ('-' == str.front()) {
+        negative = true;
+        str = str.substr(1);
     }
 
     int result = 0;
@@ -51,6 +59,11 @@ int ternary_string_to_int(const std::string& str)
 
         size_t degree = str.size() - i - 1;
         result += number * std::pow(3, degree);
+    }
+
+    if (negative)
+    {
+        result = -result;
     }
 
     return result;
