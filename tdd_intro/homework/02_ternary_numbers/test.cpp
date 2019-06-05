@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include <exception>
+#include <sstream>
 #include <string>
+#include <cmath>
 
 /*
 Convert a ternary number, represented as a string (e.g. '102012'), to its decimal equivalent using first principles.
@@ -21,7 +23,22 @@ If your language provides a method in the standard library to perform the conver
 
 int ternary_string_to_int(const std::string& str)
 {
-    return 2;
+    int result = 0;
+
+    for (int i = 0; i < str.size(); ++i)
+    {
+        int number = 0;
+
+        std::stringstream stream;
+        stream << str[i];
+        stream >> number;
+
+
+        int degree = str.size() - i - 1;
+        result += number * std::pow(3, degree);
+    }
+
+    return result;
 }
 
 TEST(TernaryTestCase, PassTernaryDigit)
