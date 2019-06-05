@@ -80,3 +80,8 @@ TEST(TernaryTestCase, PassEmptyString)
 {
     ASSERT_THROW(ternary_string_to_int(""), std::invalid_argument);
 }
+
+TEST(TernaryTestCase, PassNegativeTernaryNumber)
+{
+    ASSERT_EQ(-5, ternary_string_to_int("-12"));
+}
