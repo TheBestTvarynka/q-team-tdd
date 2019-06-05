@@ -23,6 +23,11 @@ If your language provides a method in the standard library to perform the conver
 
 int ternary_string_to_int(const std::string& str)
 {
+    if (str.empty())
+    {
+        throw std::invalid_argument("String must have value");
+    }
+
     int result = 0;
 
     for (size_t i = 0; i < str.size(); ++i)
