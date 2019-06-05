@@ -22,17 +22,22 @@ If your language provides a method in the standard library to perform the conver
 */
 
 int ternary_string_to_int(const std::string& str)
-{
+{    
     int result = 0;
 
     for (size_t i = 0; i < str.size(); ++i)
     {
+        auto current_char = str[i];
+        if (!std::isdigit(current_char))
+        {
+            throw std::invalid_argument("String must contain digits only");
+        }
+
         int number = 0;
 
         std::stringstream stream;
-        stream << str[i];
+        stream << current_char;
         stream >> number;
-
 
         size_t degree = str.size() - i - 1;
         result += number * std::pow(3, degree);
