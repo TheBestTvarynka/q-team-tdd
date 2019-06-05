@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <string>
 
 /*
 Convert a ternary number, represented as a string (e.g. '102012'), to its decimal equivalent using first principles.
@@ -16,3 +17,13 @@ The last place in a ternary number is the 1's place. The second to last is the 3
 
 If your language provides a method in the standard library to perform the conversion, pretend it doesn't exist and implement it yourself.
 */
+
+int ternary_string_to_int(const std::string& str)
+{
+    return 0;
+}
+
+TEST(TernaryTestCase, PassTernaryNumber)
+{
+    ASSERT_EQ(2, ternary_string_to_int("2"));
+}
