@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <exception>
 #include <string>
 
 /*
@@ -23,7 +24,12 @@ int ternary_string_to_int(const std::string& str)
     return 2;
 }
 
-TEST(TernaryTestCase, PassTernaryNumber)
+TEST(TernaryTestCase, PassTernaryDigit)
 {
     ASSERT_EQ(2, ternary_string_to_int("2"));
+}
+
+TEST(TernaryTestCase, PassTernaryNumber)
+{
+    ASSERT_EQ(5, ternary_string_to_int("12"));
 }
