@@ -1,6 +1,6 @@
 
-pub fn is_leap(_year: u32) -> bool {
-    false
+pub fn is_leap(year: u32) -> bool {
+    year % 4 == 0
 }
 
 #[cfg(test)]
