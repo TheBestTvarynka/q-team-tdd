@@ -1,29 +1,21 @@
 use std::collections::HashMap;
 
 pub fn count_words<T: AsRef<str>>(data: T) -> HashMap<String, usize> {
-    let data = data.as_ref();
     let mut words = HashMap::new();
 
-    if data.is_empty() {
-        return words;
-    }
-
-    for word in data.split(&[
+    for word in data.as_ref().split(&[
         ' ', '.', '-', ';', '@', '|', ',', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-',
-        '+', '=', '_', '[', ']', '{', '}', ';', ':', '\'', '"', ',', '.', '/', '?', '<', '>', '|', '\t', '\\',
+        '+', '=', '_', '[', ']', '{', '}', ';', ':', '\'', '"', ',', '.', '/', '?', '<', '>', '|',
+        '\t', '\\',
     ]) {
         if word.is_empty() {
             continue;
         }
 
         let word = word.to_lowercase();
+        let count = words.get(&word).map(|v| *v + 1).unwrap_or(1);
 
-        match words.get_mut(&word) {
-            Some(count) => *count = *count + 1,
-            None => {
-                words.insert(word, 1);
-            }
-        };
+        words.insert(word, count);
     }
 
     words
