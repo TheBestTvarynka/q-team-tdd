@@ -8,7 +8,10 @@ pub fn count_words<T: AsRef<str>>(data: T) -> HashMap<String, usize> {
         return words;
     }
 
-    for word in data.split(&[' ', '.', '-', ';', '@', '|', ',']) {
+    for word in data.split(&[
+        ' ', '.', '-', ';', '@', '|', ',', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-',
+        '+', '=', '_', '[', ']', '{', '}', ';', ':', '\'', '"', ',', '.', '/', '?', '<', '>', '|', '\t', '\\',
+    ]) {
         if word.is_empty() {
             continue;
         }
@@ -66,7 +69,7 @@ mod tests {
 
         assert_eq!(words, result_words);
     }
-        
+
     #[test]
     fn empty_input() {
         let words = HashMap::new();
