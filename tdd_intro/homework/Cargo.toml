@@ -2,4 +2,5 @@
 members = [
     "words_count",
     "leap_year",
+    "ternary",
 ]

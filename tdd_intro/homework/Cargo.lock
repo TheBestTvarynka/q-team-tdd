@@ -7,5 +7,9 @@ name = "leap_year"
 version = "0.1.0"
 
 [[package]]
+name = "ternary"
+version = "0.1.0"
+
+[[package]]
 name = "words_count"
 version = "0.1.0"
