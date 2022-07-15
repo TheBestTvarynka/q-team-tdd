@@ -1,22 +1,19 @@
-use core::num;
-
+pub const BASE: u32 = 3;
 
 pub fn to_decimal<T: AsRef<str>>(data: T) -> u32 {
     let mut number = 0;
-    let mut index = 0;
 
-    for digit in data.as_ref().chars().rev() {
+    for (index, digit) in data.as_ref().chars().rev().enumerate() {
         let digit = match digit {
             '0' => 0,
             '1' => 1,
             '2' => 2,
-            _ => unreachable!(),
+            _ => return 0,
         };
 
-        number += digit * 3_u32.pow(index);
-        index += 1;
+        number += digit * BASE.pow(index as u32);
     }
-    
+
     number
 }
 
