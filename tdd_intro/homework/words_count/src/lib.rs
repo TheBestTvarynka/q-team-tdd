@@ -51,10 +51,28 @@ mod tests {
     }
 
     #[test]
+    fn input_with_different_delimiters() {
+        let mut words = HashMap::new();
+        words.insert("pavlo".into(), 1);
+        words.insert("myroniuk".into(), 1);
+        words.insert("yaroslavovych".into(), 2);
+
+        let result_words = count_words("pavlo, myroniuk -  yaroslavovych. yaroslavovych;");
+
+        assert_eq!(words, result_words);
+    }
+        
+    #[test]
     fn empty_input() {
         let words = HashMap::new();
 
         let result_words = count_words("");
+        assert_eq!(words, result_words);
+
+        let result_words = count_words("   ");
+        assert_eq!(words, result_words);
+
+        let result_words = count_words(".;@|");
         assert_eq!(words, result_words);
     }
 
