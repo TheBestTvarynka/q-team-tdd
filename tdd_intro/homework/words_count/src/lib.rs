@@ -29,10 +29,22 @@ mod tests {
     #[test]
     fn basic_count() {
         let mut words = HashMap::new();
-        words.insert("Pavlo".into(), 1);
-        words.insert("Myroniuk".into(), 1);
+        words.insert("pavlo".into(), 1);
+        words.insert("myroniuk".into(), 1);
 
-        let result_words = count_words("Pavlo Myroniuk");
+        let result_words = count_words("pavlo myroniuk");
+
+        assert_eq!(words, result_words);
+    }
+
+    #[test]
+    fn count_words_with_different_cases() {
+        let mut words = HashMap::new();
+        words.insert("pavlo".into(), 1);
+        words.insert("myroniuk".into(), 1);
+        words.insert("yaroslavovych".into(), 2);
+
+        let result_words = count_words("Pavlo MyronIUk YarosLavovych YaroslavoVych");
 
         assert_eq!(words, result_words);
     }
@@ -42,7 +54,6 @@ mod tests {
         let words = HashMap::new();
 
         let result_words = count_words("");
-
         assert_eq!(words, result_words);
     }
 
