@@ -8,8 +8,13 @@ pub fn count_words<T: AsRef<str>>(data: T) -> HashMap<String, usize> {
         return words;
     }
 
-    for word in data.split(' ') {
+    for word in data.split(&[' ', '.', '-', ';', '@', '|', ',']) {
+        if word.is_empty() {
+            continue;
+        }
+
         let word = word.to_lowercase();
+
         match words.get_mut(&word) {
             Some(count) => *count = *count + 1,
             None => {
@@ -68,11 +73,13 @@ mod tests {
 
         let result_words = count_words("");
         assert_eq!(words, result_words);
+    }
 
-        let result_words = count_words("   ");
-        assert_eq!(words, result_words);
+    #[test]
+    fn all_delimiters() {
+        let words = HashMap::new();
 
-        let result_words = count_words(".;@|");
+        let result_words = count_words("!@#$%^&*()_+,./<>?;':[]{}\\|\" 	");
         assert_eq!(words, result_words);
     }
 
