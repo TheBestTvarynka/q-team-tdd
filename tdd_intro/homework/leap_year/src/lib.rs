@@ -1,6 +1,14 @@
 
 pub fn is_leap(year: u32) -> bool {
-    year % 4 == 0
+    if year % 4 == 0 {
+        if year % 100 == 0 {
+            year % 400 == 0
+        } else {
+            true
+        }
+    } else {
+        false
+    }
 }
 
 #[cfg(test)]
