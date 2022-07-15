@@ -9,10 +9,11 @@ pub fn count_words<T: AsRef<str>>(data: T) -> HashMap<String, usize> {
     }
 
     for word in data.split(' ') {
-        match words.get_mut(word) {
+        let word = word.to_lowercase();
+        match words.get_mut(&word) {
             Some(count) => *count = *count + 1,
             None => {
-                words.insert(word.into(), 1);
+                words.insert(word, 1);
             }
         };
     }
