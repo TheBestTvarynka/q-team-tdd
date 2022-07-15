@@ -1,6 +1,23 @@
+use core::num;
 
-pub fn to_decimal<T: AsRef<str>>(_data: T) -> u32 {
-    302
+
+pub fn to_decimal<T: AsRef<str>>(data: T) -> u32 {
+    let mut number = 0;
+    let mut index = 0;
+
+    for digit in data.as_ref().chars().rev() {
+        let digit = match digit {
+            '0' => 0,
+            '1' => 1,
+            '2' => 2,
+            _ => unreachable!(),
+        };
+
+        number += digit * 3_u32.pow(index);
+        index += 1;
+    }
+    
+    number
 }
 
 #[cfg(test)]
