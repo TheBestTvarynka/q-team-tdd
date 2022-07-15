@@ -144,7 +144,7 @@ Example input and output
 => 123456789
 ```
 
-## Mocking & Faking practicies
+## Mocking & Faking practices
 
 ### Folder copying
 
