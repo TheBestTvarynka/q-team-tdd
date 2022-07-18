@@ -1,3 +1,4 @@
+#[rustfmt::skip]
 mod digit_literals;
 
 use std::io;
@@ -16,12 +17,12 @@ pub fn parse_account_number<T: AsRef<str>>(data: T) -> io::Result<Vec<[u8; 9]>> 
 
     while let Some(number_top) = lines.next() {
         println!("numbers_top: {}", number_top);
-        let number_middle = lines
-            .next()
-            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid lines amount: no second line"))?;
-        let number_bottom = lines
-            .next()
-            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid lines amount: no third line"))?;
+        let number_middle = lines.next().ok_or_else(|| {
+            io::Error::new(io::ErrorKind::Other, "Invalid lines amount: no second line")
+        })?;
+        let number_bottom = lines.next().ok_or_else(|| {
+            io::Error::new(io::ErrorKind::Other, "Invalid lines amount: no third line")
+        })?;
 
         if number_top.len() != LINE_LEN
             || number_middle.len() != LINE_LEN
@@ -104,7 +105,12 @@ mod tests {
 
     #[test]
     fn long_input() {
-        assert_eq!(486, parse_account_number(include_str!("../assets/long_input.txt")).unwrap().len());
+        assert_eq!(
+            486,
+            parse_account_number(include_str!("../assets/long_input.txt"))
+                .unwrap()
+                .len()
+        );
     }
 
     #[test]
