@@ -3,4 +3,5 @@ members = [
     "words_count",
     "leap_year",
     "ternary",
+    "bank-ocr",
 ]
