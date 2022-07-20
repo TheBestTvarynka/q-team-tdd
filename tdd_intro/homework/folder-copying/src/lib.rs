@@ -132,6 +132,58 @@ mod tests {
     }
 
     #[test]
+    fn copy_file() {
+        let mut items = HashMap::new();
+
+        items.insert(
+            Path::new("from_dir").to_owned(),
+            Item::File,
+        );
+
+        let mut file_system = FileSystemMock::new(items);
+
+        let mut folder_copier = FolderCopier::new(&mut file_system);
+
+        assert!(folder_copier.copy_folder("from_dir", "from_dir").is_err());
+    }
+
+    #[test]
+    fn same_folder() {
+        let mut items = HashMap::new();
+
+        items.insert(
+            Path::new("from_dir").to_owned(),
+            Item::Directory(Vec::new()),
+        );
+
+        let mut file_system = FileSystemMock::new(items);
+
+        let mut folder_copier = FolderCopier::new(&mut file_system);
+
+        assert!(folder_copier.copy_folder("from_dir", "from_dir").is_err());
+    }
+
+    #[test]
+    fn empty_folder() {
+        let mut items = HashMap::new();
+
+        items.insert(
+            Path::new("from_dir").to_owned(),
+            Item::Directory(Vec::new()),
+        );
+
+        let mut file_system = FileSystemMock::new(items);
+
+        let mut folder_copier = FolderCopier::new(&mut file_system);
+
+        folder_copier.copy_folder("from_dir", "to_dir").unwrap();
+
+        assert!(file_system
+            .copied
+            .is_empty());
+    }
+
+    #[test]
     fn folder_with_nested_folders() {
         let mut items = HashMap::new();
 
