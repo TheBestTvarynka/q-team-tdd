@@ -27,11 +27,21 @@ impl<'a> FolderCopier<'a> {
         let from = from.as_ref();
         let to = to.as_ref();
 
+        if from == to {
+            return Err(io::Error::new(io::ErrorKind::Other, "dest folder is a source folder"));
+        }
+
+        let items = self.file_system.list_folder(from)?;
+
+        if items.is_empty() {
+            return Ok(());
+        }
+
         self.file_system.create_folder(to)?;
 
         println!("copy folder: {:?} {:?}", from, to);
 
-        for item in self.file_system.list_folder(from)? {
+        for item in items {
             println!("from, item: {:?} {:?}", from, item);
 
             let mut to = to.to_owned();
@@ -70,7 +80,9 @@ mod tests {
     // very dumb file system mock
     #[derive(Debug)]
     struct FileSystemMock {
+        // holds test file system hierarchy
         pub items: HashMap<PathBuf, Item>,
+        // holds paths that our class copied
         pub copied: HashMap<PathBuf, Item>,
     }
 
@@ -92,7 +104,7 @@ mod tests {
                 }
                 Some(Item::Directory(_)) => Err(io::Error::new(
                     io::ErrorKind::Other,
-                    "Provided path is a folder instead of directory",
+                    "Provided path is a folder instead of the file",
                 )),
                 None => Err(io::Error::new(io::ErrorKind::Other, "File not found")),
             }
