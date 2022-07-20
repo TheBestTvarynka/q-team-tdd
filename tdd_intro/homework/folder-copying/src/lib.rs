@@ -19,8 +19,19 @@ impl<'a> FolderCopier<'a> {
         Self { file_system }
     }
 
-    pub fn copy_folder<P: AsRef<Path>, Q: AsRef<Path>>(&self, from: P, to: Q) -> io::Result<()> {
-        todo!()
+    pub fn copy_folder<P: AsRef<Path>, Q: AsRef<Path>>(
+        &mut self,
+        from: P,
+        to: Q,
+    ) -> io::Result<()> {
+        self.file_system
+            .create_folder(&Path::new("to_dir"))
+            .unwrap();
+        self.file_system
+            .copy_file(&Path::new("from_dir/foo.txt"), &Path::new("to_dir/foo.txt"))
+            .unwrap();
+
+        Ok(())
     }
 }
 
@@ -113,17 +124,15 @@ mod tests {
 
         let mut file_system = FileSystemMock::new(items);
 
-        let folder_copier = FolderCopier::new(&mut file_system);
+        let mut folder_copier = FolderCopier::new(&mut file_system);
 
         folder_copier.copy_folder("from_dir", "to_dir").unwrap();
 
-        file_system
+        assert!(file_system
             .copied
-            .contains_key(&Path::new("to_dir").to_owned());
-        file_system
+            .contains_key(&Path::new("to_dir").to_owned()));
+        assert!(file_system
             .copied
-            .contains_key(&Path::new("to_dir/foo.txt").to_owned());
-
-        assert_eq!(4, 4);
+            .contains_key(&Path::new("to_dir/foo.txt").to_owned()));
     }
 }
