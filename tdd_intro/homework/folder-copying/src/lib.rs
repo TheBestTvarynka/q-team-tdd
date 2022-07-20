@@ -4,18 +4,18 @@ use std::{
 };
 
 pub trait FileSystem {
-    fn copy_file(&self, from: &Path, to: &Path) -> io::Result<()>;
-    fn create_folder(&self, path: &Path) -> io::Result<()>;
-    fn is_file(&self, path: &Path) -> bool;
-    fn list_folder(&self, path: &Path) -> io::Result<Vec<PathBuf>>;
+    fn copy_file(&mut self, from: &Path, to: &Path) -> io::Result<()>;
+    fn create_folder(&mut self, path: &Path) -> io::Result<()>;
+    fn is_dir(&mut self, path: &Path) -> bool;
+    fn list_folder(&mut self, path: &Path) -> io::Result<Vec<PathBuf>>;
 }
 
-pub struct FolderCopier {
-    file_system: Box<dyn FileSystem>,
+pub struct FolderCopier<'a> {
+    file_system: &'a mut dyn FileSystem,
 }
 
-impl FolderCopier {
-    pub fn new(file_system: Box<dyn FileSystem>) -> Self {
+impl<'a> FolderCopier<'a> {
+    pub fn new(file_system: &'a mut dyn FileSystem) -> Self {
         Self { file_system }
     }
 
@@ -32,34 +32,98 @@ mod tests {
         path::{Path, PathBuf},
     };
 
-    use crate::FileSystem;
+    use crate::{FileSystem, FolderCopier};
 
-    struct FileSystemMock<'a> {
-        pub items: HashMap<&'a Path, bool>,
-        pub copied: HashMap<&'a Path, bool>,
+    enum Item {
+        File,
+        Directory(Vec<PathBuf>),
     }
 
-    impl<'a> FileSystem for FileSystemMock<'a> {
-        fn copy_file(&self, from: &Path, to: &Path) -> io::Result<()> {
-            todo!()
+    struct FileSystemMock {
+        pub items: HashMap<PathBuf, Item>,
+        pub copied: HashMap<PathBuf, Item>,
+    }
+
+    impl FileSystemMock {
+        pub fn new(items: HashMap<PathBuf, Item>) -> Self {
+            Self {
+                items,
+                copied: HashMap::new(),
+            }
+        }
+    }
+
+    impl FileSystem for FileSystemMock {
+        fn copy_file(&mut self, from: &Path, to: &Path) -> io::Result<()> {
+            match self.items.get(from) {
+                Some(Item::File) => {
+                    self.copied.insert(to.to_owned(), Item::File);
+                    Ok(())
+                }
+                Some(Item::Directory(_)) => Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    "Provided path is a folder instead of directory",
+                )),
+                None => Err(io::Error::new(io::ErrorKind::Other, "File not found")),
+            }
         }
 
-        fn create_folder(&self, path: &Path) -> io::Result<()> {
-            todo!()
+        fn create_folder(&mut self, path: &Path) -> io::Result<()> {
+            if self.copied.get(path).is_some() {
+                return Err(io::Error::new(io::ErrorKind::Other, "Already exist"));
+            }
+
+            self.copied
+                .insert(path.to_owned(), Item::Directory(Vec::new()));
+
+            Ok(())
         }
 
-        fn is_file(&self, path: &Path) -> bool {
-            *self.items.get(path).unwrap()
+        fn is_dir(&mut self, path: &Path) -> bool {
+            match self.items.get(path).unwrap() {
+                Item::Directory(_) => true,
+                _ => false,
+            }
         }
 
-        fn list_folder(&self, path: &Path) -> io::Result<Vec<PathBuf>> {
-            todo!()
+        fn list_folder(&mut self, path: &Path) -> io::Result<Vec<PathBuf>> {
+            match self
+                .items
+                .get(path)
+                .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "folder not found"))?
+            {
+                Item::File => Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    "provided path is a file instead of folder",
+                )),
+                Item::Directory(items) => Ok(items.clone()),
+            }
         }
     }
 
     #[test]
     fn folder_with_one_file() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+        let mut items = HashMap::new();
+
+        items.insert(
+            Path::new("from_dir/").to_owned(),
+            Item::Directory(vec![Path::new("from_dir/foo.txt").to_owned()]),
+        );
+        items.insert(Path::new("from_dir/foo.txt").to_owned(), Item::File);
+
+        let mut file_system = FileSystemMock::new(items);
+
+        let folder_copier = FolderCopier::new(&mut file_system);
+
+        folder_copier.copy_folder("from_dir", "to_dir").unwrap();
+
+        file_system
+            .copied
+            .contains_key(&Path::new("to_dir").to_owned());
+        file_system
+            .copied
+            .contains_key(&Path::new("to_dir/foo.txt").to_owned());
+
+        assert_eq!(4, 4);
     }
 }
