@@ -50,6 +50,7 @@ mod tests {
         Directory(Vec<PathBuf>),
     }
 
+    // very dumb file system mock
     struct FileSystemMock {
         pub items: HashMap<PathBuf, Item>,
         pub copied: HashMap<PathBuf, Item>,
@@ -110,6 +111,109 @@ mod tests {
                 Item::Directory(items) => Ok(items.clone()),
             }
         }
+    }
+
+    #[test]
+    fn folder_with_nested_folders() {
+        let mut items = HashMap::new();
+
+        items.insert(
+            Path::new("from_dir/").to_owned(),
+            Item::Directory(vec![
+                Path::new("from_dir/foo.txt").to_owned(),
+                Path::new("from_dir/bar.txt").to_owned(),
+            ]),
+        );
+        items.insert(Path::new("from_dir/foo.txt").to_owned(), Item::File);
+        items.insert(Path::new("from_dir/bar.txt").to_owned(), Item::File);
+        items.insert(
+            Path::new("from_dir/nested1").to_owned(),
+            Item::Directory(vec![
+                Path::new("from_dir/nested1/nn1.txt").to_owned(),
+                Path::new("from_dir/nested1/nn2.txt").to_owned(),
+            ]),
+        );
+        items.insert(Path::new("from_dir/nested1/nn1.txt").to_owned(), Item::File);
+        items.insert(Path::new("from_dir/nested1/nn2.txt").to_owned(), Item::File);
+        items.insert(
+            Path::new("from_dir/nested1/nested2").to_owned(),
+            Item::Directory(vec![
+                Path::new("from_dir/nested1/nested2/nn22.txt").to_owned(),
+                Path::new("from_dir/nested1/nested2/nn22.txt").to_owned(),
+            ]),
+        );
+        items.insert(Path::new("from_dir/nested1/nested2/nn21.txt").to_owned(), Item::File);
+        items.insert(Path::new("from_dir/nested1/nested2/nn22.txt").to_owned(), Item::File);
+
+        let mut file_system = FileSystemMock::new(items);
+
+        let mut folder_copier = FolderCopier::new(&mut file_system);
+
+        folder_copier.copy_folder("from_dir", "to_dir").unwrap();
+
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir").to_owned()));
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir/foo.txt").to_owned()));
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir/bar.txt").to_owned()));
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir/nested1").to_owned()));
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir/nested1/nn1.txt").to_owned()));
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir/nested1/nn2.txt").to_owned()));
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir/nested1/nested2").to_owned()));
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir/nested1/nested2/nn21.txt").to_owned()));
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir/nested1/nested2/nn22.txt").to_owned()));
+    }
+
+    #[test]
+    fn folder_with_few_files() {
+        let mut items = HashMap::new();
+
+        items.insert(
+            Path::new("from_dir/").to_owned(),
+            Item::Directory(vec![
+                Path::new("from_dir/foo.txt").to_owned(),
+                Path::new("from_dir/bar.txt").to_owned(),
+                Path::new("from_dir/ano.txt").to_owned(),
+            ]),
+        );
+        items.insert(Path::new("from_dir/foo.txt").to_owned(), Item::File);
+        items.insert(Path::new("from_dir/bar.txt").to_owned(), Item::File);
+        items.insert(Path::new("from_dir/ano.txt").to_owned(), Item::File);
+
+        let mut file_system = FileSystemMock::new(items);
+
+        let mut folder_copier = FolderCopier::new(&mut file_system);
+
+        folder_copier.copy_folder("from_dir", "to_dir").unwrap();
+
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir").to_owned()));
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir/foo.txt").to_owned()));
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir/bar.txt").to_owned()));
+        assert!(file_system
+            .copied
+            .contains_key(&Path::new("to_dir/ano.txt").to_owned()));
     }
 
     #[test]
