@@ -4,4 +4,5 @@ members = [
     "leap_year",
     "ternary",
     "bank-ocr",
+    "folder-copying",
 ]
