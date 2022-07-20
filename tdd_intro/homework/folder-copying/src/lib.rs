@@ -6,7 +6,7 @@ use std::{
 pub trait FileSystem {
     fn copy_file(&mut self, from: &Path, to: &Path) -> io::Result<()>;
     fn create_folder(&mut self, path: &Path) -> io::Result<()>;
-    fn is_dir(&mut self, path: &Path) -> bool;
+    fn is_dir(&self, path: &Path) -> io::Result<bool>;
     fn list_folder(&mut self, path: &Path) -> io::Result<Vec<PathBuf>>;
 }
 
@@ -28,7 +28,10 @@ impl<'a> FolderCopier<'a> {
         let to = to.as_ref();
 
         if from == to {
-            return Err(io::Error::new(io::ErrorKind::Other, "dest folder is a source folder"));
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                "dest folder is a source folder",
+            ));
         }
 
         let items = self.file_system.list_folder(from)?;
@@ -39,18 +42,14 @@ impl<'a> FolderCopier<'a> {
 
         self.file_system.create_folder(to)?;
 
-        println!("copy folder: {:?} {:?}", from, to);
-
         for item in items {
-            println!("from, item: {:?} {:?}", from, item);
-
             let mut to = to.to_owned();
             to.push(item.clone());
 
             let mut from = from.to_owned();
             from.push(item.clone());
 
-            if self.file_system.is_dir(&from) {
+            if self.file_system.is_dir(&from)? {
                 self.copy_folder(&from, to)?;
             } else {
                 self.file_system.copy_file(&from, &to)?;
@@ -121,10 +120,15 @@ mod tests {
             Ok(())
         }
 
-        fn is_dir(&mut self, path: &Path) -> bool {
-            match self.items.get(path).unwrap() {
-                Item::Directory(_) => true,
-                _ => false,
+        fn is_dir(&self, path: &Path) -> io::Result<bool> {
+            match self.items.get(path).ok_or_else(|| {
+                io::Error::new(
+                    io::ErrorKind::Other,
+                    format!("file system item not found: {:?}", path),
+                )
+            })? {
+                Item::Directory(_) => Ok(true),
+                _ => Ok(false),
             }
         }
 
@@ -147,10 +151,7 @@ mod tests {
     fn copy_file() {
         let mut items = HashMap::new();
 
-        items.insert(
-            Path::new("from_dir").to_owned(),
-            Item::File,
-        );
+        items.insert(Path::new("from_dir").to_owned(), Item::File);
 
         let mut file_system = FileSystemMock::new(items);
 
@@ -190,9 +191,7 @@ mod tests {
 
         folder_copier.copy_folder("from_dir", "to_dir").unwrap();
 
-        assert!(file_system
-            .copied
-            .is_empty());
+        assert!(file_system.copied.is_empty());
     }
 
     #[test]
@@ -217,8 +216,14 @@ mod tests {
                 Path::new("nested2").to_owned(),
             ]),
         );
-        items.insert(Path::new("from_dir\\nested1\\nn1.txt").to_owned(), Item::File);
-        items.insert(Path::new("from_dir\\nested1\\nn2.txt").to_owned(), Item::File);
+        items.insert(
+            Path::new("from_dir\\nested1\\nn1.txt").to_owned(),
+            Item::File,
+        );
+        items.insert(
+            Path::new("from_dir\\nested1\\nn2.txt").to_owned(),
+            Item::File,
+        );
         items.insert(
             Path::new("from_dir\\nested1\\nested2").to_owned(),
             Item::Directory(vec![
@@ -226,18 +231,20 @@ mod tests {
                 Path::new("nn22.txt").to_owned(),
             ]),
         );
-        items.insert(Path::new("from_dir\\nested1\\nested2\\nn21.txt").to_owned(), Item::File);
-        items.insert(Path::new("from_dir\\nested1\\nested2\\nn22.txt").to_owned(), Item::File);
+        items.insert(
+            Path::new("from_dir\\nested1\\nested2\\nn21.txt").to_owned(),
+            Item::File,
+        );
+        items.insert(
+            Path::new("from_dir\\nested1\\nested2\\nn22.txt").to_owned(),
+            Item::File,
+        );
 
         let mut file_system = FileSystemMock::new(items);
 
         let mut folder_copier = FolderCopier::new(&mut file_system);
 
         folder_copier.copy_folder("from_dir", "to_dir").unwrap();
-
-        println!("===============");
-        println!("{:?}", file_system.copied);
-        println!("===============");
 
         assert!(file_system
             .copied
